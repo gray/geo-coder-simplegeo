@@ -220,7 +220,7 @@ L<http://rt.cpan.org/Public/Dist/Display.html?Name=Geo-Coder-SimpleGeo>
 
 =item * Search CPAN
 
-L<http://search.cpan.org/dist/Geo-Coder-SimpleGeo>
+L<http://search.cpan.org/dist/Geo-Coder-SimpleGeo/>
 
 =back
 
