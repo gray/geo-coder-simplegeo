@@ -110,7 +110,7 @@ Geo::Coder::SimpleGeo - Geocode addresses with the SimpleGeo API
         secret => 'Your Secret',
     );
     my $location = $geocoder->geocode(
-        location => '425 W Randolph St, Chicago, IL'
+        location => '41 Decatur St, San Francisco, California 94103',
     );
 
 =head1 DESCRIPTION
