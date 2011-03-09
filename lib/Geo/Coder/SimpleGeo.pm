@@ -7,19 +7,15 @@ use Carp qw(croak);
 use Encode ();
 use JSON;
 use LWP::UserAgent;
-use Net::OAuth;
 use URI;
 
 our $VERSION = '0.01';
 $VERSION = eval $VERSION;
 
-$Net::OAuth::PROTOCOL_VERSION = Net::OAuth::PROTOCOL_VERSION_1_0A;
-
 sub new {
     my ($class, %params) = @_;
 
-    croak q('key' and 'secret' are required)
-        unless $params{key} and $params{secret};
+    croak q('token' is required) unless $params{token};
 
     my $self = bless \ %params, $class;
 
@@ -32,10 +28,9 @@ sub new {
         $self->ua->set_my_handler(request_send  => $dump_sub);
         $self->ua->set_my_handler(response_done => $dump_sub);
     }
-
-    $self->{compress} = 1 unless exists $self->{compress};
-    $self->ua->default_header(accept_encoding => 'gzip,deflate')
-        if $self->{compress};
+    elsif ($self->{compress}) {
+        $self->ua->default_header(accept_encoding => 'gzip,deflate');
+    }
 
     return $self;
 }
@@ -61,24 +56,10 @@ sub geocode {
 
     my $uri = URI->new('http://api.simplegeo.com/0.1/geocode/address.json');
     $uri->query_form(
-        q => $location,
+        q     => $location,
+        token => $self->{token},
     );
-
-    my $req = Net::OAuth->request('consumer')->new(
-        consumer_key     => $self->{key},
-        consumer_secret  => $self->{secret},
-        request_method   => 'GET',
-        request_url      => $uri,
-        signature_method => 'HMAC-SHA1',
-        timestamp        => time,
-        nonce            => $$ . int(rand(2**32)),
-    );
-    $req->sign;
-
-    my $res = $self->{response} = $self->ua->get(
-        $req->to_url,
-        authorization => $req->to_authorization_header,
-    );
+    my $res = $self->{response} = $self->ua->get($uri);
     return unless $res->is_success;
 
     # Change the content type of the response from 'application/json' so
@@ -106,8 +87,7 @@ Geo::Coder::SimpleGeo - Geocode addresses with the SimpleGeo API
     use Geo::Coder::SimpleGeo;
 
     my $geocoder = Geo::Coder::SimpleGeo->new(
-        key    => 'Your Key',
-        secret => 'Your Secret',
+        token => 'Your SimpleGeo JSONP token'
     );
     my $location = $geocoder->geocode(
         location => '41 Decatur St, San Francisco, California 94103',
@@ -118,20 +98,21 @@ Geo::Coder::SimpleGeo - Geocode addresses with the SimpleGeo API
 The C<Geo::Coder::SimpleGeo> module provides an interface to the geocoding
 functionality of the SimpleGeo API.
 
+Note: as of version 0.02, OAuth autorization has been replaced the use of
+the new JSONP token.
+
 =head1 METHODS
 
 =head2 new
 
     $geocoder = Geo::Coder::SimpleGeo->new(
-        key    => 'Your Key',
-        secret => 'Your Secret',
-        # debug  => 1,
+        token => 'Your SimpleGeo JSONP token',
+        # debug => 1,
     )
 
 Creates a new geocoding object.
 
-A key and secret can be obtained here:
-L<http://simplegeo.com/account/settings/>
+A JSONP token can be obtained here: L<http://simplegeo.com/tokens/jsonp/>.
 
 Accepts an optional B<ua> parameter for passing in a custom LWP::UserAgent
 object.
@@ -226,7 +207,7 @@ L<http://search.cpan.org/dist/Geo-Coder-SimpleGeo/>
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright (C) 2010 gray <gray at cpan.org>, all rights reserved.
+Copyright (C) 2010-2011 gray <gray at cpan.org>, all rights reserved.
 
 This library is free software; you can redistribute it and/or modify it
 under the same terms as Perl itself.

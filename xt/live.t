@@ -4,13 +4,8 @@ use Encode qw(decode encode);
 use Geo::Coder::SimpleGeo;
 use Test::More;
 
-unless ($ENV{SIMPLEGEO_KEY} and $ENV{SIMPLEGEO_SECRET}) {
-    plan skip_all => 'SIMPLEGEO_KEY and SIMPLEGEO_SECRET environment'
-        . ' variables must be set';
-}
-else {
-    plan tests => 2;
-}
+plan skip_all => 'SIMPLEGEO_TOKEN environment variables must be set'
+    unless $ENV{SIMPLEGEO_TOKEN};
 
 my $debug = $ENV{GEO_CODER_SIMPLEGEO_DEBUG};
 unless ($debug) {
@@ -18,9 +13,8 @@ unless ($debug) {
 }
 
 my $geocoder = Geo::Coder::SimpleGeo->new(
-    key    => $ENV{SIMPLEGEO_KEY},
-    secret => $ENV{SIMPLEGEO_SECRET},
-    debug  => $debug,
+    token => $ENV{SIMPLEGEO_TOKEN},
+    debug => $debug,
 );
 
 {
@@ -36,3 +30,5 @@ my $geocoder = Geo::Coder::SimpleGeo->new(
     my @locations = $geocoder->geocode('Main Street, Los Angeles, CA');
     ok(@locations > 1, 'there are many Main Streets in Los Angeles, CA');
 }
+
+done_testing;

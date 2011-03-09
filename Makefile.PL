@@ -12,7 +12,6 @@ my %conf = (
         'Encode'         => 0,
         'JSON'           => 2.0,
         'LWP::UserAgent' => 0,
-        'Net::OAuth'     => 0.25,
         'URI'            => 1.36,
     },
     BUILD_REQUIRES => {
