@@ -98,7 +98,7 @@ Geo::Coder::SimpleGeo - Geocode addresses with the SimpleGeo API
 The C<Geo::Coder::SimpleGeo> module provides an interface to the geocoding
 functionality of the SimpleGeo API.
 
-Note: as of version 0.02, OAuth autorization has been replaced the use of
+Note: as of version 0.02, OAuth autorization has been replaced by the use of
 the new JSONP token.
 
 =head1 METHODS
