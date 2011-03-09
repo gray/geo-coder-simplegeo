@@ -4,10 +4,7 @@ use Test::More tests => 3;
 use Geo::Coder::SimpleGeo;
 
 new_ok(
-    'Geo::Coder::SimpleGeo' => [
-        key    => 'Your Key',
-        secret => 'Your Secret'
-    ]
+    'Geo::Coder::SimpleGeo' => [ token => 'Your JSONP token', ]
 );
 
 {
@@ -15,10 +12,7 @@ new_ok(
     eval {
         my $geocoder = Geo::Coder::SimpleGeo->new(debug => 1);
     };
-    like(
-        $@, qr/^'key' and 'secret' are required/,
-        'key/secret are required'
-    );
+    like($@, qr/^'token' is required/, 'token is required');
 }
 
 can_ok('Geo::Coder::SimpleGeo', qw(geocode response ua));
