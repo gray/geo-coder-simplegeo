@@ -1,5 +1,8 @@
 Revision history for Geo-Coder-SimpleGeo
 
+0.03  Mon Mar 21 18:07:44 UTC 2011
+    - Enabled compressed responses by default.
+
 0.02  Wed Mar  9 15:02:27 UTC 2011
     - Switched from erring OAuth to new JSONP token auth.
 
