@@ -13,7 +13,8 @@ our $VERSION = '0.03';
 $VERSION = eval $VERSION;
 
 sub new {
-    my ($class, %params) = @_;
+    my ($class, @params) = @_;
+    my %params = (@params % 2) ? (token => @params) : @params;
 
     croak q('token' is required) unless $params{token};
 
