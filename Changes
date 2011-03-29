@@ -1,5 +1,8 @@
 Revision history for Geo-Coder-SimpleGeo
 
+0.04  Tue Mar 29 23:25:46 UTC 2011
+    - Added HTTPS support.
+
 0.03  Mon Mar 21 18:07:44 UTC 2011
     - Enabled compressed responses by default.
 
