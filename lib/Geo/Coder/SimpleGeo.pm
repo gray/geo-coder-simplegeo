@@ -113,12 +113,15 @@ the new JSONP token.
 
     $geocoder = Geo::Coder::SimpleGeo->new(
         token => 'Your SimpleGeo JSONP token',
+        # https => 1,
         # debug => 1,
     )
 
 Creates a new geocoding object.
 
 A JSONP token can be obtained here: L<http://simplegeo.com/tokens/jsonp/>.
+
+Accepts an optional B<https> parameter for securing network traffic.
 
 Accepts an optional B<ua> parameter for passing in a custom LWP::UserAgent
 object.
