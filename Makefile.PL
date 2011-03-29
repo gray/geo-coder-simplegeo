@@ -11,7 +11,7 @@ my %conf = (
     PREREQ_PM => {
         'Encode'         => 0,
         'JSON'           => 2.0,
-        'LWP::UserAgent' => 0,
+        'LWP::UserAgent' => 6.02,
         'URI'            => 1.36,
     },
     BUILD_REQUIRES => {
@@ -22,7 +22,8 @@ my %conf = (
             repository => 'http://github.com/gray/geo-coder-simplegeo',
         },
         recommends => {
-            'JSON::XS' => 2.0,
+            'JSON::XS'             => 2.0,
+            'LWP::Protocol::https' => 6.02,
         },
     },
     dist           => { COMPRESS => 'gzip -9f', SUFFIX => 'gz', },

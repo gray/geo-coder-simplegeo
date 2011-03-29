@@ -12,6 +12,8 @@ unless ($debug) {
     diag "Set GEO_CODER_SIMPLEGEO_DEBUG to see request/response data";
 }
 
+my $has_ssl = LWP::UserAgent->is_protocol_supported('https');
+
 my $geocoder = Geo::Coder::SimpleGeo->new(
     token => $ENV{SIMPLEGEO_TOKEN},
     debug => $debug,
@@ -29,6 +31,18 @@ my $geocoder = Geo::Coder::SimpleGeo->new(
 {
     my @locations = $geocoder->geocode('Main Street, Los Angeles, CA');
     ok(@locations > 1, 'there are many Main Streets in Los Angeles, CA');
+}
+
+SKIP: {
+    skip 'no SSL support', 1 unless $has_ssl;
+    my $geocoder = Geo::Coder::SimpleGeo->new(
+        token => $ENV{SIMPLEGEO_TOKEN},
+        debug => $debug,
+        https  => 1,
+    );
+    my $address = '41 Decatur St, San Francisco, CA';
+    my $location = $geocoder->geocode($address);
+    like($location->{properties}{zip}, qr/^94103/, "https");
 }
 
 done_testing;
