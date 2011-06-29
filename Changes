@@ -1,5 +1,10 @@
 Revision history for Geo-Coder-SimpleGeo
 
+0.05  Wed Jun 29 12:16:25 UTC 2011
+    - Switched off of the discontinued geocode service to the new context
+      service.
+    - Allowed compression to be used when under debug mode.
+
 0.04  Tue Mar 29 23:25:46 UTC 2011
     - Added HTTPS support.
 
