@@ -28,8 +28,9 @@ sub new {
         my $dump_sub = sub { $_[0]->dump(maxlength => 0); return };
         $self->ua->set_my_handler(request_send  => $dump_sub);
         $self->ua->set_my_handler(response_done => $dump_sub);
+        $self->{compress} ||= 0;
     }
-    elsif (exists $self->{compress} ? $self->{compress} : 1) {
+    if (exists $self->{compress} ? $self->{compress} : 1) {
         $self->ua->default_header(accept_encoding => 'gzip,deflate');
     }
 
@@ -54,14 +55,16 @@ sub ua {
 sub geocode {
     my ($self, @params) = @_;
     my %params = (@params % 2) ? (location => @params) : @params;
+    my $raw = delete $params{raw};
 
     my $location = $params{location} or return;
     $location = Encode::decode('utf-8', $location);
 
-    my $uri = URI->new('http://api.simplegeo.com/0.1/geocode/address.json');
+    my $uri = URI->new('http://api.simplegeo.com/1.0/context/address.json');
     $uri->query_form(
-        q     => $location,
-        token => $self->{token},
+        token   => $self->{token},
+        address => $location,
+        filter  => 'query,address',
     );
     $uri->scheme('https') if $self->{https};
 
@@ -74,8 +77,10 @@ sub geocode {
 
     my $data = eval { from_json($res->decoded_content) };
     return unless $data;
+    return $data if $raw;
 
-    my @results = @{ $data->{features} || [] };
+    # Currently only returns a single result...
+    my @results = 'ARRAY' eq ref $data ? @$data : ($data);
     return wantarray ? @results : $results[0];
 }
 
@@ -104,6 +109,9 @@ Geo::Coder::SimpleGeo - Geocode addresses with the SimpleGeo API
 The C<Geo::Coder::SimpleGeo> module provides an interface to the geocoding
 functionality of the SimpleGeo API.
 
+Note: as of version 0.05, this module makes use of the new context service,
+which replaces the original, and discontinued, geocode service.
+
 Note: as of version 0.02, OAuth autorization has been replaced by the use of
 the new JSONP token.
 
@@ -119,12 +127,34 @@ the new JSONP token.
 
 Creates a new geocoding object.
 
-A JSONP token can be obtained here: L<http://simplegeo.com/tokens/jsonp/>.
+Accepts the following named arguments:
 
-Accepts an optional B<https> parameter for securing network traffic.
+=over
 
-Accepts an optional B<ua> parameter for passing in a custom LWP::UserAgent
-object.
+=item * I<token>
+
+A JSONP token. (required)
+
+A token can be obtained here: L<http://simplegeo.com/tokens/jsonp/>
+
+=item * I<ua>
+
+A custom LWP::UserAgent object. (optional)
+
+=item * I<compress>
+
+Enable compression. (default: 1, unless I<debug> is enabled)
+
+=item * I<https>
+
+Use https protocol for securing network traffic. (default: 0)
+
+=item * I<debug>
+
+Enable debugging. This prints the headers and content for requests and
+responses. (default: 0)
+
+=back
 
 =head2 geocode
 
@@ -137,19 +167,28 @@ list context it returns all location results.
 Each location result is a hashref; a typical example looks like:
 
     {
-        geometry => {
-            coordinates => [ "-122.406032", "37.772502" ],
-            type        => "Point"
+        address => {
+            geometry => {
+                coordinates => [ "-122.406049843623", "37.7724651361945" ],
+                type        => "Point",
+            },
+            properties => {
+                address  => "65 Decatur St",
+                city     => "San Francisco",
+                country  => "US",
+                county   => "San Francisco",
+                distance => "0.01",
+                postcode => 94103,
+                province => "CA",
+            },
+            type => "Feature",
         },
-        properties => {
-            number    => 41,
-            precision => "range",
-            prenum    => "",
-            score     => "0.805",
-            street    => "Decatur St",
-            zip       => 94103,
+        query => {
+            address   => "41 Decatur St, San Francisco, California 94103",
+            latitude  => "37.772555",
+            longitude => "-122.405978",
         },
-        type => "Feature",
+        timestamp => "1309346653.669",
     }
 
 =head2 response

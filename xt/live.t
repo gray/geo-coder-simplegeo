@@ -23,14 +23,23 @@ my $geocoder = Geo::Coder::SimpleGeo->new(
     my $address = '41 Decatur St, San Francisco, CA';
     my $location = $geocoder->geocode($address);
     like(
-        $location->{properties}{zip},
+        $location->{address}{properties}{postcode},
         qr/^94103/,
         "correct zip code for $address"
     );
 }
-{
+
+TODO: {
+    local $TODO = 'Multiple results';
     my @locations = $geocoder->geocode('Main Street, Los Angeles, CA');
     ok(@locations > 1, 'there are many Main Streets in Los Angeles, CA');
+}
+
+TODO: {
+    local $TODO = 'International result';
+    my $address = qq(Ch\xE2teau d Uss\xE9, 37420);
+    my $location = $geocoder->geocode($address);
+    is($location->{address}{properties}{country}, 'FR', 'non-US address');
 }
 
 SKIP: {
@@ -42,7 +51,7 @@ SKIP: {
     );
     my $address = '41 Decatur St, San Francisco, CA';
     my $location = $geocoder->geocode($address);
-    like($location->{properties}{zip}, qr/^94103/, "https");
+    like($location->{address}{properties}{postcode}, qr/^94103/, "https");
 }
 
 done_testing;
